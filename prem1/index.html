@@ -16,6 +16,8 @@ header { background:white; border-bottom:1px solid var(--line); padding:20px 28p
 h1 { margin:0 0 5px; font-size:24px; line-height:1.15; }
 h2 { margin:0; font-size:16px; }
 .topbar, .section-head { display:flex; justify-content:space-between; align-items:flex-end; gap:16px; }
+.brand { display:flex; align-items:center; gap:14px; max-width:780px; }
+.brand-logo { width:76px; height:auto; object-fit:contain; flex:0 0 auto; }
 .sub, .note { color:var(--muted); font-size:12px; }
 .controls { display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
 select, input { min-height:38px; border:1px solid var(--line); border-radius:6px; background:white; padding:8px 10px; font-size:13px; color:var(--ink); }
@@ -79,6 +81,8 @@ tr:hover td { background:#f8fafc; }
   header { position:static; padding:16px 14px; }
   main { padding:14px; }
   .topbar, .section-head { flex-direction:column; align-items:flex-start; }
+  .brand { max-width:none; align-items:flex-start; }
+  .brand-logo { width:64px; }
   .controls { justify-content:flex-start; }
   .kpis, .grid-2, .split, .mini { grid-template-columns:1fr; }
   .bar-row { grid-template-columns:minmax(96px, 150px) minmax(0,1fr) 54px; }
@@ -88,9 +92,12 @@ tr:hover td { background:#f8fafc; }
 <body>
 <header>
   <div class="topbar">
-    <div>
-      <h1>TKA Score Summary</h1>
-      <div class="sub">Executive dashboard, ranking, heatmap, drilldown, dan analisis kesenjangan. Acuan: KKM Juli 60 dan rata-rata nasional 25/26.</div>
+    <div class="brand">
+      <img class="brand-logo" src="https://imgix3.ruangguru.com/assets/miscellaneous/png_g9a5ti_7132.png" alt="ruangguru" />
+      <div>
+        <h1>TKA Score Summary</h1>
+        <div class="sub">Executive dashboard, ranking, heatmap, drilldown, dan analisis kesenjangan. Acuan: KKM Juli 60 dan rata-rata nasional 25/26.</div>
+      </div>
     </div>
     <div class="controls">
       <select id="levelSelect" aria-label="Level data"><option>Territory</option><option>Regional</option><option selected>Branch</option></select>
