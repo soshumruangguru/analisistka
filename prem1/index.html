@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="id">
 <head>
 <meta charset="utf-8" />
@@ -7,7 +7,8 @@
 <style>
 :root {
   --ink:#192230; --muted:#647083; --line:#d7dde5; --panel:#fff; --bg:#f4f6f8;
-  --teal:#087e85; --red:#c3413b; --green:#148652; --blue:#2d6fbd; --amber:#c98210;
+  --teal:#087e85; --red:#c3413b; --green:#148652; --blue:#005bbb; --amber:#c98210;
+  --purple:#7a3db8;
 }
 * { box-sizing:border-box; }
 body { margin:0; font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color:var(--ink); background:var(--bg); letter-spacing:0; }
@@ -31,13 +32,26 @@ section { margin-top:18px; }
 .delta { margin-top:6px; color:var(--muted); font-size:12px; }
 .good { color:var(--green); } .bad { color:var(--red); } .warn { color:var(--amber); }
 .grid-2 { display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr); gap:12px; }
+.single-panel { display:block; }
 .chart { display:grid; gap:8px; margin-top:12px; }
 .bar-row { display:grid; grid-template-columns:minmax(135px, 240px) minmax(0,1fr) 64px; gap:10px; align-items:center; min-height:24px; }
 .bar-label { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; }
 .bar-track { position:relative; height:14px; background:#edf0f3; border-radius:999px; overflow:hidden; }
 .bar-fill { position:absolute; top:0; left:0; height:100%; min-width:2px; border-radius:999px; }
 .zero-line { position:absolute; top:0; bottom:0; width:1px; background:#536173; opacity:.5; }
+.marker { position:absolute; top:-3px; bottom:-3px; border-radius:999px; opacity:.98; }
+.marker.national { background:var(--blue); width:5px; }
+.marker.kkm { background:var(--amber); width:5px; }
 .chart-value { text-align:right; font-variant-numeric:tabular-nums; font-size:12px; font-weight:700; }
+.priority-row { display:grid; grid-template-columns:minmax(120px, 210px) minmax(0,1fr) 64px; gap:10px; align-items:center; }
+.priority-bars { display:grid; gap:5px; }
+.priority-track { position:relative; height:10px; background:#edf0f3; border-radius:999px; overflow:hidden; }
+.priority-track .zero-line { opacity:.35; }
+.priority-fill { position:absolute; top:0; height:100%; min-width:2px; border-radius:999px; }
+.priority-values { display:grid; gap:5px; text-align:right; font-size:11px; font-weight:760; font-variant-numeric:tabular-nums; }
+.gap-track { height:16px; }
+.gap-fill.kkm { top:2px; height:12px; background:var(--red); opacity:.95; }
+.gap-fill.national { top:5px; height:6px; background:var(--purple); opacity:1; box-shadow:0 0 0 1px #fff; }
 .table-wrap, .heatmap { overflow:auto; background:white; border:1px solid var(--line); border-radius:8px; }
 table { border-collapse:collapse; width:100%; min-width:830px; font-size:12.5px; }
 th, td { border-bottom:1px solid var(--line); padding:9px 10px; text-align:right; white-space:nowrap; }
@@ -94,8 +108,8 @@ tr:hover td { background:#f8fafc; }
     <div class="section-head"><h2>Executive Dashboard</h2><span class="note">Average area memakai semua mapel yang tersedia; average mapel dibobot n Attempt.</span></div>
     <div class="kpis" id="kpis"></div>
   </section>
-  <section class="grid-2">
-    <div class="card"><div class="section-head"><h2>Ranking & Benchmark</h2><span class="note" id="rankNote"></span></div><div class="chart" id="rankChart"></div></div>
+  <section class="single-panel">
+    <div class="section-head"><h2>Ranking & Benchmark</h2><span class="note" id="rankNote"></span></div>
     <div class="table-wrap"><table class="rank-table" id="rankTable"></table></div>
   </section>
   <section>
@@ -103,8 +117,8 @@ tr:hover td { background:#f8fafc; }
     <div class="heatmap" id="heatmap"></div>
   </section>
   <section class="grid-2">
-    <div class="card"><div class="section-head"><h2>Analisis Kesenjangan</h2><span class="note">Gap terhadap KKM 60 dan nasional 25/26.</span></div><div class="chart" id="gapChart"></div><div class="legend"><span><i class="dot" style="background:var(--red)"></i>Gap KKM</span><span><i class="dot" style="background:var(--blue)"></i>Gap nasional</span></div></div>
-    <div class="card"><div class="section-head"><h2>Mapel Prioritas</h2><span class="note">Diurutkan dari gap KKM terbesar.</span></div><div class="chart" id="priorityList"></div></div>
+    <div class="card"><div class="section-head"><h2>Analisis Kesenjangan</h2><select id="gapSortSelect" aria-label="Urutan gap"><option value="kkm">Gap KKM terbesar</option><option value="national">Gap nasional terbesar</option><option value="combined">Prioritas gabungan</option></select></div><div class="chart" id="gapChart"></div><div class="legend"><span><i class="dot" style="background:var(--red)"></i>Gap KKM</span><span><i class="dot" style="background:var(--purple)"></i>Gap nasional</span></div></div>
+    <div class="card"><div class="section-head"><h2>Mapel Prioritas</h2><span class="note">Urutan mengikuti pilihan Analisis Kesenjangan.</span></div><div class="chart" id="priorityList"></div><div class="legend"><span><i class="dot" style="background:var(--red)"></i>Gap KKM</span><span><i class="dot" style="background:var(--blue)"></i>Gap nasional</span></div></div>
   </section>
   <section>
     <div class="section-head"><h2>Drilldown Interaktif</h2><span class="note">Pilih item untuk profil mapel lengkap.</span></div>
@@ -121,6 +135,7 @@ const subjectSelect = document.getElementById('subjectSelect');
 const searchInput = document.getElementById('searchInput');
 const rankHighBtn = document.getElementById('rankHighBtn');
 const rankLowBtn = document.getElementById('rankLowBtn');
+const gapSortSelect = document.getElementById('gapSortSelect');
 let selectedEntity = null;
 let rankDirection = 'desc';
 payload.subjectOrder.forEach(s => { const o = document.createElement('option'); o.value=s; o.textContent=s; subjectSelect.appendChild(o); });
@@ -130,10 +145,16 @@ function sortedRecords(direction=rankDirection) { const s = subjectSelect.value;
 function heatColor(v) { if (v == null) return '#f3f4f6'; const t=Math.max(0,Math.min(1,(v-25)/45)); const r=Math.round(195+(20-195)*t), g=Math.round(65+(134-65)*t), b=Math.round(59+(82-59)*t); return `rgb(${r},${g},${b})`; }
 function textColor(v) { return v >= 46 ? '#fff' : '#172033'; }
 function barRow(label, value, max, color, sub='') { const w=Math.max(1, Math.min(100, Math.abs(value)/(max||1)*100)); return `<div class="bar-row"><div class="bar-label" title="${esc(label)}">${esc(label)}${sub ? `<div class="note">${sub}</div>`:''}</div><div class="bar-track"><span class="bar-fill" style="width:${w}%;background:${color}"></span></div><div class="chart-value">${fmt(value,1)}</div></div>`; }
+function scoreBenchmarkBar(score, national, color) {
+  const scoreW = Math.max(1, Math.min(100, score));
+  const nationalPos = national == null ? null : Math.max(0, Math.min(100, national));
+  const kkmPos = Math.max(0, Math.min(100, payload.kkm));
+  return `<div class="bar-track"><span class="bar-fill" style="width:${scoreW}%;background:${color}"></span>${nationalPos == null ? '' : `<i class="marker national" style="left:${nationalPos}%"></i>`}<i class="marker kkm" style="left:${kkmPos}%"></i></div>`;
+}
 function divergeRow(label, a, b, maxAbs) {
   const zero=50, aw=Math.abs(a)/(maxAbs||1)*50, bw=Math.abs(b)/(maxAbs||1)*50;
   const aLeft = a < 0 ? zero-aw : zero, bLeft = b < 0 ? zero-bw : zero;
-  return `<div class="bar-row"><div class="bar-label">${esc(label)}</div><div class="bar-track"><i class="zero-line" style="left:50%"></i><span class="bar-fill" style="left:${aLeft}%;width:${aw}%;background:var(--red)"></span><span class="bar-fill" style="left:${bLeft}%;width:${bw}%;background:var(--blue);opacity:.82"></span></div><div class="chart-value">${fmt(a,1)}</div></div>`;
+  return `<div class="bar-row"><div class="bar-label">${esc(label)}</div><div class="bar-track gap-track"><i class="zero-line" style="left:50%"></i><span class="bar-fill gap-fill kkm" style="left:${aLeft}%;width:${aw}%"></span><span class="bar-fill gap-fill national" style="left:${bLeft}%;width:${bw}%"></span></div><div class="chart-value">${fmt(a,1)}</div></div>`;
 }
 function renderKpis() {
   const s=subjectSelect.value, rows=filteredRecords().filter(r=>metricValue(r,s)!=null), attempts=rows.reduce((a,r)=>a+r.attempt,0);
@@ -148,11 +169,9 @@ function renderKpis() {
 }
 function renderRanking() {
   const s=subjectSelect.value, rows=sortedRecords();
-  document.getElementById('rankNote').textContent = `${rankDirection==='asc' ? 'Prioritas support dari skor terendah' : 'Ranking skor tertinggi'} · ${s==='ALL' ? 'Average semua mapel' : 'Mapel '+s}.`;
+  document.getElementById('rankNote').textContent = `${rankDirection==='asc' ? 'Prioritas support dari skor terendah' : 'Ranking skor tertinggi'} Â· ${s==='ALL' ? 'Average semua mapel' : 'Mapel '+s}.`;
   rankHighBtn.classList.toggle('active', rankDirection==='desc');
   rankLowBtn.classList.toggle('active', rankDirection==='asc');
-  const top=rows.slice(0,12).reverse(); const max=Math.max(...top.map(r=>metricValue(r,s)),1);
-  document.getElementById('rankChart').innerHTML = top.map(r=>barRow(r.name, metricValue(r,s), max, metricValue(r,s)>=payload.kkm?'var(--green)':'var(--red)', `n=${fmt(r.attempt,0)}`)).join('');
   document.getElementById('rankTable').innerHTML = `<thead><tr><th>#</th><th>Nama</th><th>Attempt</th><th>Skor</th><th>Gap KKM</th><th>Gap Nasional</th><th>Status</th></tr></thead><tbody>${rows.map((r,i)=>{ const v=metricValue(r,s), gn=s==='ALL'?null:v-payload.national[s]; return `<tr><td>${i+1}</td><td>${esc(r.name)}</td><td>${fmt(r.attempt,0)}</td><td><b>${fmt(v,1)}</b></td><td class="${v-payload.kkm>=0?'good':'bad'}">${fmt(v-payload.kkm,1)}</td><td class="${gn==null?'':gn>=0?'good':'bad'}">${gn==null?'-':fmt(gn,1)}</td><td>${v>=payload.kkm?'<span class="pill ok">>=60</span>':'<span class="pill no"><60</span>'}</td></tr>`; }).join('')}</tbody>`;
 }
 function renderHeatmap() {
@@ -160,9 +179,18 @@ function renderHeatmap() {
   document.getElementById('heatmap').innerHTML = `<table><thead><tr><th>Nama</th><th>Avg</th>${payload.subjectOrder.map(s=>`<th>${s}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.name)}<div class="note">n=${fmt(r.attempt,0)}</div></td><td><span class="cell" style="background:${heatColor(r.avg)};color:${textColor(r.avg)}">${fmt(r.avg,1)}</span></td>${payload.subjectOrder.map(s=>{ const v=r.scores[s]; return `<td><span class="cell" style="background:${heatColor(v)};color:${textColor(v)}">${fmt(v,1)}</span></td>`; }).join('')}</tr>`).join('')}</tbody></table>`;
 }
 function renderGaps() {
-  const rows=payload.subjectRows.filter(r=>r.level===levelSelect.value).sort((a,b)=>a.gapKkm-b.gapKkm), maxAbs=Math.max(...rows.flatMap(r=>[Math.abs(r.gapKkm),Math.abs(r.gapNational)]),1);
+  const sortMode=gapSortSelect.value;
+  const rows=payload.subjectRows.filter(r=>r.level===levelSelect.value).sort((a,b)=>{
+    if (sortMode==='national') return Math.max(0,-b.gapNational) - Math.max(0,-a.gapNational);
+    if (sortMode==='combined') return (Math.max(0,-b.gapKkm)+Math.max(0,-b.gapNational)) - (Math.max(0,-a.gapKkm)+Math.max(0,-a.gapNational));
+    return Math.max(0,-b.gapKkm) - Math.max(0,-a.gapKkm);
+  }), maxAbs=Math.max(...rows.flatMap(r=>[Math.abs(r.gapKkm),Math.abs(r.gapNational)]),1);
   document.getElementById('gapChart').innerHTML = rows.map(r=>divergeRow(r.subject, r.gapKkm, r.gapNational, maxAbs)).join('');
-  document.getElementById('priorityList').innerHTML = rows.map(r=>barRow(r.subject, Math.max(0, -r.gapKkm), Math.max(...rows.map(x=>Math.max(0,-x.gapKkm)),1), r.gapKkm>=0?'var(--green)':'var(--red)', `Avg ${fmt(r.avg,1)} | Nasional ${fmt(r.national,1)} | Gap nasional ${fmt(r.gapNational,1)}`)).join('');
+  const maxPriority=Math.max(...rows.flatMap(r=>[Math.max(0,-r.gapKkm), Math.max(0,-r.gapNational)]),1);
+  document.getElementById('priorityList').innerHTML = rows.map(r=>{
+    const kkmGap=Math.max(0,-r.gapKkm), nationalGap=Math.max(0,-r.gapNational);
+    return `<div class="priority-row"><div class="bar-label">${r.subject}<div class="note">Avg ${fmt(r.avg,1)} | Nasional ${fmt(r.national,1)}</div></div><div class="priority-bars"><div class="priority-track"><span class="priority-fill" style="left:0;width:${Math.max(1,kkmGap/maxPriority*100)}%;background:var(--red)"></span></div><div class="priority-track"><span class="priority-fill" style="left:0;width:${Math.max(1,nationalGap/maxPriority*100)}%;background:var(--blue)"></span></div></div><div class="priority-values"><span class="${r.gapKkm<0?'bad':'good'}">${fmt(r.gapKkm,1)}</span><span class="${r.gapNational<0?'bad':'good'}">${fmt(r.gapNational,1)}</span></div></div>`;
+  }).join('');
 }
 function renderEntityList() {
   const rows=sortedRecords().slice(0,120); if (!selectedEntity || !rows.some(r=>r.name===selectedEntity.name)) selectedEntity=rows[0]||null;
@@ -172,14 +200,15 @@ function renderEntityList() {
 function renderDetail() {
   const r=selectedEntity; if (!r) { document.getElementById('detail').innerHTML='<div class="note">Tidak ada data.</div>'; document.getElementById('detailChart').innerHTML=''; return; }
   document.getElementById('detail').innerHTML = `<div class="detail-title">${esc(r.name)}</div><div class="note">${esc(r.event)} ? n Attempt ${fmt(r.attempt,0)}</div><div class="mini"><div class="card"><div class="label">Average</div><div class="value ${r.avg>=payload.kkm?'good':'bad'}">${fmt(r.avg,1)}</div></div><div class="card"><div class="label">Mapel wajib</div><div class="value">${fmt(r.coreAvg,1)}</div></div><div class="card"><div class="label">Mapel pilihan</div><div class="value">${fmt(r.choiceAvg,1)}</div></div><div class="card"><div class="label">Mapel tersedia</div><div class="value">${r.subjectCount}</div></div></div>`;
-  const labels=payload.subjectOrder.filter(s=>r.scores[s]!=null), max=Math.max(...labels.flatMap(s=>[r.scores[s],payload.national[s],payload.kkm]),1);
+  const labels=payload.subjectOrder.filter(s=>r.scores[s]!=null);
   document.getElementById('detailChart').innerHTML = labels.map(s=>{
     const score=r.scores[s], nat=payload.national[s];
-    return `<div class="bar-row"><div class="bar-label">${s}<div class="note">Nasional ${fmt(nat,1)} | KKM 60</div></div><div class="bar-track"><span class="bar-fill" style="width:${Math.max(1,score/max*100)}%;background:${score>=payload.kkm?'var(--green)':'var(--red)'}"></span><i class="zero-line" style="left:${Math.min(100,nat/max*100)}%;background:var(--blue);width:2px"></i><i class="zero-line" style="left:${Math.min(100,payload.kkm/max*100)}%;background:var(--amber);width:2px"></i></div><div class="chart-value">${fmt(score,1)}</div></div>`;
+    return `<div class="bar-row"><div class="bar-label">${s}<div class="note">Nasional ${fmt(nat,1)} | KKM 60</div></div>${scoreBenchmarkBar(score, nat, score>=payload.kkm?'var(--green)':'var(--red)')}<div class="chart-value">${fmt(score,1)}</div></div>`;
   }).join('');
 }
 function renderAll() { selectedEntity=null; renderKpis(); renderRanking(); renderHeatmap(); renderGaps(); renderEntityList(); renderDetail(); }
 levelSelect.addEventListener('change', renderAll); subjectSelect.addEventListener('change', renderAll); searchInput.addEventListener('input', renderAll);
+gapSortSelect.addEventListener('change', () => { renderGaps(); });
 rankHighBtn.addEventListener('click', () => { rankDirection='desc'; renderAll(); });
 rankLowBtn.addEventListener('click', () => { rankDirection='asc'; renderAll(); });
 renderAll();
